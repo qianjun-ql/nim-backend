@@ -27,4 +27,42 @@ const create = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getOne, create };
+const update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    updateData.updatedAt = new Date();
+
+    const options = { new: true };
+
+    const updatedMenu = await MenuItems.update(id, updateData, options);
+
+    if (!updatedMenu) {
+      return res.status(404).send("Menu item not found");
+    }
+    return res.status(200).send(updatedMenu);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
+const deleteMenu = async (req, res) => {
+  try {
+    const deletedMenu = await MenuItems.deleteMenu(req.params.id);
+    return res.status(200).send(deletedMenu.id);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
+const search = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const searchResult = await MenuItems.search(q);
+    return res.status(200).send(searchResult);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
+module.exports = { getAll, getOne, create, update, deleteMenu, search };

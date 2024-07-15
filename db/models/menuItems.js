@@ -1,23 +1,30 @@
 const mongoose = require("../db.js");
 
-const menuItemsSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true
+const menuItemsSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    imageUrl: {
+      type: String
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
+    }
   },
-  price: {
-    type: Number,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  imageUrl: {
-    type: String
-  }
-});
+  { timestamps: true }
+);
 menuItemsSchema.set("toJSON", {
   virtuals: true
 });
@@ -51,4 +58,48 @@ const create = async (body) => {
   }
 };
 
-module.exports = { getAll, getOne, create, MenuItems };
+const update = async (id, updateData, options) => {
+  try {
+    const updatedMenu = await MenuItems.findByIdAndUpdate(
+      id,
+      updateData,
+      options
+    );
+    return updatedMenu;
+  } catch (error) {
+    return error;
+  }
+};
+
+const deleteMenu = async (id) => {
+  try {
+    const deletedMenu = await MenuItems.findByIdAndDelete(id);
+    return deletedMenu;
+  } catch (error) {
+    return error;
+  }
+};
+
+const search = async (query) => {
+  try {
+    const searchResult = await MenuItems.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } }
+      ]
+    });
+    return searchResult;
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports = {
+  getAll,
+  getOne,
+  create,
+  update,
+  deleteMenu,
+  search,
+  MenuItems
+};
