@@ -67,6 +67,25 @@ const getByStatus = async (req, res) => {
   }
 };
 
+const getTotalSales = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query || {};
+    const query = {};
+
+    if (startDate && endDate) {
+      query.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const totalSales = await Order.getTotalSales(query);
+    res.send({ total: totalSales });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 module.exports = {
   getAll,
   getOne,
@@ -74,5 +93,6 @@ module.exports = {
   update,
   remove,
   getByCustomer,
-  getByStatus
+  getByStatus,
+  getTotalSales
 };
