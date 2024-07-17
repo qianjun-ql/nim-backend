@@ -59,30 +59,37 @@ const getByCustomer = async (req, res) => {
 };
 
 const getByStatus = async (req, res) => {
+  const { s: status } = req.query;
+
+  if (!status) {
+    return res.status(400).send("Status is required");
+  }
+
   try {
-    const orders = await Order.getByStatus(req.params.status);
-    res.send(orders);
+    const orders = await Order.getByStatus(status);
+    return res.status(200).json(orders);
   } catch (error) {
-    res.status(500).send(error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
 const getTotalSales = async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const query =
+    startDate && endDate
+      ? {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+          }
+        }
+      : {};
+
   try {
-    const { startDate, endDate } = req.query || {};
-    const query = {};
-
-    if (startDate && endDate) {
-      query.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
-      };
-    }
-
     const totalSales = await Order.getTotalSales(query);
-    res.send({ total: totalSales });
+    res.json({ total: totalSales });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).json({ error: error.message });
   }
 };
 

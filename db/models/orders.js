@@ -78,8 +78,11 @@ const remove = async (id) => {
 };
 
 const getByStatus = async (status) => {
-  const orders = await Order.find({ status }).populate("items");
-  return orders;
+  try {
+    return await Order.find({ status });
+  } catch (error) {
+    return error;
+  }
 };
 
 const getTotalSales = async (query) => {
