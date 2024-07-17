@@ -78,8 +78,25 @@ const remove = async (id) => {
 };
 
 const getByStatus = async (status) => {
-  const orders = await Order.find({ status }).populate("items");
-  return orders;
+  try {
+    return await Order.find({ status });
+  } catch (error) {
+    return error;
+  }
+};
+
+const getTotalSales = async (query) => {
+  const orders = await Order.find(query).populate("items.item");
+  const totalSales = orders
+    .map((order) =>
+      order.items
+        .filter((item) => item.item && item.item.price)
+        .map((item) => item.item.price * item.quantity)
+        .reduce((sum, itemTotal) => sum + itemTotal, 0)
+    )
+    .reduce((total, orderTotal) => total + orderTotal, 0);
+
+  return totalSales;
 };
 
 module.exports = {
@@ -89,5 +106,6 @@ module.exports = {
   update,
   remove,
   getByStatus,
+  getTotalSales,
   Order
 };
